@@ -1,252 +1,335 @@
 # FortyGuard Product Evaluation Report
 
-**Prepared by:** Faith Amanze  
-**Evaluation date:** 10 November 2026  
-**Product:** FortyGuard Temperature Dashboard and API
+**Evaluator:** Faith Amanze  
+**Products evaluated:** FortyGuard Temperature Dashboard, Temperature API, and Temperature MCP  
+**Evaluation date:** November 2026  
+**GitHub repository:** https://github.com/faith-amanze/fortyguard-product-evaluation
 
 ## 1. Executive Summary
 
-This evaluation examines the FortyGuard platform from a product, usability, and technical perspective.
+I evaluated the FortyGuard Temperature Dashboard, Temperature API, and MCP integration to assess usability, functionality, documentation, reliability, and integration readiness.
 
-The assessment covers the dashboard's user experience, interface design, navigation, workflow, performance, API structure, documentation, error handling, MCP integration, scalability, and maintainability.
+The evaluation confirmed that the platform provides useful temperature analytics, including Temperature Condition Monitoring (TCM), Time of Measure, Exceedance, and Persistence. The API returned successful results for several Colorado-based tests and provided structured analytical outputs.
 
-Python scripts were used to interact with the API, retrieve analytical results, inspect responses, and generate a heatmap visualization.
+However, I identified areas that need improvement:
 
-The evaluation found that the platform provides useful temperature-analysis capabilities and visualization features. However, some areas require improvement, particularly analytical response times, geographical coverage clarity, API error handling, documentation, and the transparency of environmental measurements.
+- The dashboard could communicate data provenance, accuracy, and environmental measurements more clearly.
+- API requests may fail for locations outside supported coverage.
+- One Exceedance request returned an HTTP 504 error.
+- The MCP server exposed its tools and successfully executed the credit-balance operation, but its heatmap operation rejected three GeoJSON representations that its published schema says it supports.
+- Further testing is required to establish MCP reliability, scalability, and AI-client compatibility.
 
-Some features, including complete MCP workflows, alert delivery, and PDF reporting, were not fully verified. These are identified as areas for further testing rather than assumed weaknesses.
+Overall, FortyGuard has a useful technical foundation, but improvements to validation, documentation, and error handling would make the product more reliable and easier to integrate.
 
-## 2. User Experience (UX) and User Interface (UI)
-
-The dashboard provides a visual interface for exploring temperature and environmental information.
+## 2. UX/UI
 
 ### Positive observations
-- Temperature information is presented through map-based visualizations.
+
+- The dashboard presents temperature information through a map-based interface.
 - Users can switch between heatmap and polygon layers.
-- Opacity controls provide flexibility when viewing map data.
-- Temperature can be displayed in Celsius.
-- A 12-class legend helps users interpret temperature categories.
-- Time simulation provides a way to explore changes over time.
+- Temperature units can be changed to Celsius.
+- The interface provides a 12-class legend.
+- Opacity controls and time simulation help users explore the displayed data.
+- Environmental information such as humidity, precipitation, and solar radiation is available.
 
 ### Areas for improvement
-- Provide clearer explanations of temperature classifications and the seven-tier accuracy index.
-- Make unavailable environmental measurements easier to distinguish from actual zero values.
-- Improve the presentation of units and descriptions for environmental parameters.
-- Provide more visible feedback when analytical requests are processing or have completed.
 
-**Assessment:** The dashboard offers useful visualization features. Clearer explanations and feedback would improve usability and user confidence.
+- Some data fields need clearer explanations and units.
+- The dashboard should explain the source, timestamp, and provenance of displayed measurements.
+- The proprietary seven-tier accuracy index should explain how scores are calculated and what each tier means.
+- Missing environmental values should be distinguished from actual zero readings.
+- The meaning of the Wet Bulb Globe measurement and its displayed unit should be clarified.
 
-## 3. Ease of Navigation and Workflow Design
+### Recommendation
 
-The platform provides access to map visualization, environmental information, analytical functions, and monitoring configuration.
+Improve labels, tooltips, measurement definitions, and data-source information. Users should be able to understand what each measurement represents without consulting external documentation.
 
-The evaluation explored the map layers, opacity controls, temperature units, legend, time simulation, and analytical API workflows.
+## 3. Navigation and Workflow
 
-### Areas for improvement
-- Organize related analytical functions into a more consistent workflow.
-- Make the steps for submitting, tracking, and retrieving analysis results clearer.
-- Provide visible progress indicators for long-running operations.
-- Make monitoring and reporting options easier to discover.
-- Provide clear confirmation messages after successful operations.
+The dashboard provides access to map visualisation, analytics, and monitoring-related functions.
 
-**Assessment:** The available functionality is useful, but a more guided workflow could reduce the effort required for new users.
+The main analytics tested were:
 
-## 4. Dashboard Performance and Responsiveness
-
-The dashboard and API were examined using available analytical operations.
-
-The API response times varied depending on the operation.
-
-### Observations
-- Time Series and Distribution operations responded relatively quickly.
-- Time of Measure, Exceedance, and Persistence operations took more than five minutes in the tested cases.
-- A heatmap visualization was successfully generated from the retrieved API data.
-- Some analytical requests required additional time before completed results became available.
-
-### Areas for improvement
-- Optimize long-running analytical operations.
-- Provide progress indicators and estimated processing stages.
-- Introduce clear timeout messages and retry guidance.
-- Consider background processing for resource-intensive analyses.
-
-**Assessment:** Performance is adequate for some operations, but the longer analytical processing times could affect the user experience.
-
-## 5. API Structure and Design
-
-The FortyGuard API provides analytical functionality through structured requests and JSON responses.
-
-The evaluation covered:
-
-- Temperature Classification Map (TCM)
+- Temperature Condition Monitoring (TCM)
 - Time of Measure
 - Exceedance
 - Persistence
 
-### Test observations
+The Time of Measure, Exceedance, and Persistence operations took more than five minutes during testing, while Time Series and Distribution completed more quickly.
 
-| Function | Result |
-|---|---|
-| TCM | Successfully completed |
-| Time of Measure | Successfully completed |
-| Exceedance | Successfully completed |
-| Persistence | Successfully completed |
+Some workflows, including monitor activation, alert delivery, PDF generation, and certain upload/download operations, were not fully verified.
 
-The successful tests returned structured results containing tile-level information and statistical measurements.
+### Recommendation
 
-For example, the TCM request using a Colorado polygon returned 90 tile features, with:
-- Minimum temperature: 35.3936°C
-- Maximum temperature: 35.6786°C
-- Mean temperature: 35.5619°C
-- Standard deviation: 0.0441°C
+- Provide clearer progress indicators for long-running analytics.
+- Show estimated processing time where possible.
+- Make it easier to distinguish completed, pending, and failed operations.
+- Provide clear confirmation when monitoring configurations and alerts are activated.
 
-A separate New York polygon request returned an `OUT_OF_COVERAGE` error.
+## 4. Dashboard Performance and Responsiveness
 
-### Areas for improvement
-- Maintain consistent response structures across endpoints.
-- Provide clear status information for asynchronous operations.
-- Document the expected request parameters and response fields.
-- Provide clear explanations of supported geographical regions.
-- Ensure that analytical functions have distinguishable and well-documented outputs.
+The dashboard successfully displayed temperature and environmental information for the tested area.
 
-**Assessment:** The API supports the core analytical operations tested and returns structured JSON data. Greater consistency and documentation would improve developer experience.
+The demo heatmap displayed:
 
-## 6. API Documentation Quality
+| Metric | Observed value |
+|---|---:|
+| Maximum temperature | 63.35°F |
+| Minimum temperature | 52.21°F |
+| Range | 11.14°F |
+| Mean | 57.76°F |
+| Standard deviation | 1.45 |
 
-The available documentation provides information about analytical operations and parameters.
+Time-consuming analytics were noticeably slower than the Time Series and Distribution operations.
 
-For example, the filter types documented for time-based analysis include:
+A formal load test was not conducted, so these observations should not be interpreted as a complete assessment of system performance under heavy traffic.
 
-- Type 1: Single hour
-- Type 2: Range of hours within a day
-- Type 3: Single day
-- Type 4: Range of days
+### Recommendation
 
-This provides a useful starting point for developers.
+Improve feedback during long-running operations and conduct performance tests across different polygon sizes, date ranges, and concurrent requests.
 
-### Areas for improvement
-- Include complete request and response examples for every endpoint.
-- Explain parameter types, accepted values, and validation rules.
-- Provide examples of successful and unsuccessful requests.
-- Clearly document geographical coverage limitations.
-- Explain the meaning of returned statistical values and tile representations.
-- Provide practical examples for asynchronous request handling.
-- Document rate limits, timeouts, and authentication requirements.
+## 5. API Structure and Design
 
-**Assessment:** The documentation explains important analytical parameters, but more practical examples and troubleshooting guidance would make integration easier.
+The API provides access to temperature analytics through structured requests and responses.
+
+The following operations were tested:
+
+### Temperature Condition Monitoring (TCM)
+
+A Colorado polygon request returned HTTP 200 and completed successfully.
+
+Results:
+
+- 90 tile features returned.
+- Minimum temperature: 35.3936°C.
+- Maximum temperature: 35.6786°C.
+- Mean temperature: 35.5619°C.
+- Standard deviation: 0.0441°C.
+
+The histogram returned two temperature categories, with 82 and 8 observations respectively.
+
+### Time of Measure
+
+A request for July 15, 2024, at 14:00 Colorado local time returned a UTC window of 20:00.
+
+A second request at 15:00 returned a UTC window of 21:00.
+
+Both requests returned 90 cells, with the corresponding hour values represented consistently.
+
+This was consistent with Colorado's UTC-6 offset in July.
+
+### Exceedance
+
+The test used:
+
+- Threshold: 30°C.
+- Direction: Above.
+- Granularity: 100 metres.
+- Date: July 15, 2024.
+- Time range: 14:00–16:00 local time.
+
+The request completed successfully and returned 90 tiles:
+
+- 74 tiles recorded a value of 1.
+- 16 tiles recorded a value of 2.
+- Mean value: 1.1778.
+
+The returned UTC window was 20:00–21:00.
+
+An earlier single-hour Exceedance request returned HTTP 504 with an empty or non-JSON response. The cause could not be established.
+
+### Persistence
+
+The Persistence request used the same date, time range, threshold, direction, and granularity as the Exceedance test.
+
+It completed successfully and returned:
+
+- 90 tiles.
+- 74 values of 1.
+- 16 values of 2.
+- Mean value of 1.1778.
+
+The results matched the Exceedance test for this particular request. This does not establish that both analytics have identical behaviour; additional tests involving longer periods and gaps in threshold exceedance would be needed to distinguish their semantics.
+
+### Geographic coverage
+
+A New York polygon request returned HTTP 400 with the error `OUT_OF_COVERAGE`.
+
+This indicates that API availability is geographically limited. The product should make supported coverage areas easy to identify before users submit requests.
+
+### Recommendation
+
+- Publish clear coverage information.
+- Improve consistency in error responses.
+- Provide examples for all analytics.
+- Explain the difference between Exceedance and Persistence with practical examples.
+- Include request limits and expected processing times in the documentation.
+
+## 6. API Documentation
+
+The API documentation provides an introduction to the available services and describes the request structure.
+
+The documentation would benefit from:
+
+- Complete request and response examples for each analytical operation.
+- Clear explanations of required and optional parameters.
+- More examples of valid GeoJSON Polygon, Feature, and FeatureCollection inputs.
+- Clear descriptions of supported geographic coverage.
+- Examples of common errors and how to resolve them.
+- Information about processing time, rate limits, and credit consumption.
+- More detailed explanations of returned statistical fields and units.
+
+### Recommendation
+
+Provide copy-and-run examples in Python, JavaScript, and PowerShell. Include valid GeoJSON examples and explain how to interpret the output.
 
 ## 7. Error Handling and Validation
 
-The API was tested with different geographical and analytical requests.
+The API returned a clear `OUT_OF_COVERAGE` response for the New York test.
 
-### Observations
+However, the single-hour Exceedance request returned HTTP 504 without a useful structured explanation.
 
-A New York geographical request returned:
+The MCP heatmap operation also revealed a reproducible input-validation issue.
 
-`HTTP 400 – OUT_OF_COVERAGE`
+### MCP heatmap validation test
 
-This indicates that the API recognizes and reports unsupported geographical coverage.
+The MCP tool list exposed a `heatmap` operation. Its published input schema described `polygon_aoi` as accepting a closed GeoJSON Polygon, Feature, or FeatureCollection.
 
-An initial single-hour Exceedance request returned:
+I tested the same closed Colorado polygon using all three representations:
 
-`HTTP 504 – Gateway Timeout`
+| Input representation | Result | Trace ID |
+|---|---|---|
+| GeoJSON Polygon | Rejected: `invalid_input` on `polygon_aoi` | `669750498e1f` |
+| GeoJSON Feature | Rejected: `invalid_input` on `polygon_aoi` | `cb60295762bf` |
+| GeoJSON FeatureCollection | Rejected: `invalid_input` on `polygon_aoi` | `87ad224ec880` |
 
-The response was empty or non-JSON. A subsequent range request completed successfully. The exact cause of the timeout was not established.
+All three attempts returned:
 
-### Areas for improvement
-- Return consistent JSON error responses.
-- Include meaningful error descriptions and possible corrective actions.
-- Validate geographical coverage before processing expensive requests where possible.
-- Provide clearer timeout and retry guidance.
-- Explain which request parameters are invalid or unsupported.
-- Ensure that errors are distinguishable from incomplete or still-processing requests.
+- Error category: `invalid_input`
+- Error message: `The request input is invalid.`
+- Field: `polygon_aoi`
+- Processing latency: 0 ms
+- Tool status: `error`
 
-**Assessment:** The API demonstrated some error detection, but more consistent and informative error responses would improve troubleshooting.
+The requests were rejected before heatmap processing began. No successful heatmap activity was generated from these attempts.
+
+The failures suggest a mismatch between the documented GeoJSON input contract and the server-side validation behaviour. The exact underlying cause could not be established from the available responses.
+
+### Recommendation
+
+- Verify that the MCP server accepts the GeoJSON formats stated in its schema.
+- Return field-level validation details that explain what is wrong with the submitted polygon.
+- Include valid sample payloads in the MCP documentation.
+- Make API and MCP validation rules consistent.
+- Return structured error details for timeouts and unsupported locations.
 
 ## 8. MCP Setup and Use with AI Tools
 
-MCP (Model Context Protocol) provides a standard way for AI applications to interact with external tools and services.
+The FortyGuard MCP endpoint was configured and inspected using MCP Inspector.
 
-For a platform such as FortyGuard, MCP integration could allow AI assistants to retrieve temperature information, request analysis, and interpret environmental data through supported tools.
+**MCP endpoint:** `https://tos-mcp.app.fortyguard.com/mcp`
 
-### Potential use cases
-- Allow an AI assistant to retrieve temperature data through FortyGuard.
-- Submit analytical requests using natural-language instructions.
-- Summarize Exceedance and Persistence results.
-- Explain temperature trends and environmental measurements.
-- Help users interpret API errors and analysis results.
+The server successfully exposed the following tools:
 
-### Evaluation status
+1. `credit_balance`
+2. `env_params`
+3. `heatmap`
+4. `heatmap_read`
+5. `monitoring`
+6. `report`
+7. `report_read`
+8. `satellite`
+9. `streetview`
+10. `temperature_routing`
+11. `temperature_routing_read`
 
-The Python-based API evaluation confirmed that the analytical endpoints could be accessed programmatically.
+### Successful test
 
-However, a complete MCP server setup and end-to-end interaction with an AI tool were not verified during this evaluation.
+The `credit_balance` tool executed successfully.
 
-### Recommendations
-- Provide a documented MCP server installation and configuration guide.
-- Include examples for connecting supported AI clients.
-- Clearly document available tools, parameters, and responses.
-- Implement appropriate authentication and permission controls.
-- Provide examples of AI-assisted analysis using real API responses.
+It returned:
 
-**Assessment:** MCP integration offers useful opportunities for AI-assisted interaction, but its actual setup, functionality, and reliability require a dedicated test.
+- Available credits: 978,900.
+- Status: `ok`.
+- Cost: 0 credits.
+
+This confirmed that the MCP endpoint was reachable, its tools could be discovered, and at least one tool could be invoked successfully.
+
+### Failed test
+
+The `heatmap` tool was tested using a Colorado polygon, TCM analytics, July 15, 2024, at 14:00 local time, and 100-metre granularity.
+
+The tool rejected three GeoJSON representations with the same `invalid_input` error on `polygon_aoi`.
+
+The repeated failure prevented successful end-to-end heatmap generation through MCP Inspector.
+
+### AI-client compatibility limitation
+
+Claude Code was installed and the FortyGuard MCP server was configured. However, interactive Claude Code use could not be completed because an authenticated Claude or Anthropic account was required.
+
+MCP Inspector was therefore used to discover and invoke the server tools.
+
+This means MCP protocol discovery and tool invocation were tested, but successful integration with an AI assistant such as Claude Code, Cursor, or Codex was not verified.
+
+### Recommendation
+
+- Resolve the heatmap input-validation issue.
+- Provide a working end-to-end MCP example.
+- Include setup instructions for Claude Code, Cursor, and other supported clients.
+- Document which operations are free and which consume credits.
+- Explain how users can retrieve results from asynchronous operations.
 
 ## 9. Scalability and Maintainability
 
-The platform exposes multiple analytical operations and returns structured data that can be processed programmatically.
+The platform provides several analytical operations and a range of MCP tools, which suggests potential for integration into larger applications.
 
-The evaluation scripts were separated into individual files for submitting requests, checking status, inspecting results, and generating visualizations.
+However, this evaluation did not include formal load testing, concurrency testing, or long-duration reliability testing.
 
-This separation makes the test project easier to understand and maintain.
+The following areas should be considered:
 
-### Areas for improvement
-- Maintain consistent API conventions across analytical endpoints.
-- Provide reusable examples and SDKs for common programming languages.
-- Improve handling of long-running analytical jobs.
-- Document API versioning and backward compatibility.
-- Provide clear rate limits and usage guidance.
-- Consider caching and background processing where appropriate.
-- Provide monitoring information for API availability and performance.
+- Consistent validation across API and MCP interfaces.
+- Clear versioning and backward-compatibility policies.
+- Predictable handling of long-running analytics.
+- Documented geographic and request limits.
+- Monitoring of failed requests and processing times.
+- Clear separation between free and credit-consuming operations.
 
-**Assessment:** The API's structured responses support integration into other applications. Further testing is needed to assess performance under concurrent requests, large geographical areas, and sustained workloads.
+### Recommendation
 
-## 10. Suggestions for Improvement
+Introduce automated integration tests for all MCP tools and API endpoints. Include valid and invalid GeoJSON test cases in the release pipeline.
 
-The following improvements are recommended:
+## 10. Top Recommendations
 
-| Priority | Area | Recommendation |
-|---|---|---|
-| High | Performance | Improve long-running analytical operations and provide progress feedback. |
-| High | Error handling | Return consistent, actionable JSON error messages. |
-| High | Documentation | Add practical examples and troubleshooting guides. |
-| High | MCP | Provide an end-to-end MCP setup and AI integration guide. |
-| Medium | UX/UI | Improve explanations, labels, and visual feedback. |
-| Medium | Navigation | Simplify the workflow for submitting and retrieving analysis. |
-| Medium | API design | Improve consistency across endpoints and responses. |
-| Medium | Scalability | Document rate limits and test concurrent workloads. |
-| Medium | Maintainability | Provide API versioning guidance and reusable integration examples. |
+1. **Fix MCP heatmap validation:** Ensure valid GeoJSON Polygon, Feature, and FeatureCollection inputs work as documented.
+2. **Improve error handling:** Return actionable validation messages and consistent structured errors.
+3. **Improve documentation:** Add complete examples, geographic coverage information, parameter explanations, and credit information.
+4. **Improve dashboard clarity:** Explain measurement units, data provenance, accuracy scores, and missing values.
+5. **Improve long-running workflows:** Provide better progress feedback and processing-time guidance.
+6. **Expand automated testing:** Test different locations, polygon sizes, time ranges, and MCP tool operations.
+7. **Verify AI-client integration:** Provide a working guide and test with supported AI clients.
 
-## 11. Conclusion
+## 11. Overall Conclusion
 
-FortyGuard provides useful temperature-analysis capabilities through its dashboard and API. The tested analytical functions successfully returned results in the completed test cases, and the structured JSON responses could be processed and visualized using Python.
+FortyGuard offers useful temperature analytics through its dashboard and API. The successful Colorado tests demonstrated that the API can return structured temperature measurements and analytical results.
 
-The evaluation also identified opportunities to improve the platform's user experience, navigation, analytical performance, API documentation, and error handling.
+The dashboard provides useful visualisation and environmental information, although some measurements and accuracy indicators need clearer explanations.
 
-MCP integration could further improve accessibility by allowing AI assistants to interact with the platform, but a complete MCP workflow still needs to be tested.
+The MCP server was reachable, exposed 11 tools, and successfully executed the credit-balance operation. However, the heatmap operation repeatedly rejected all three documented GeoJSON input representations. This is an important integration issue because it prevented the main heatmap operation from completing through MCP.
 
-Overall, FortyGuard has a useful foundation for temperature and environmental analysis. Improving usability, developer documentation, performance feedback, and integration support would make the platform more accessible and reliable for users and developers.
+My overall assessment is that FortyGuard has a promising technical foundation, but the product would benefit from stronger input validation, clearer documentation, improved error handling, and more complete integration testing.
 
 ## 12. Supporting Evidence
 
-The Python scripts and evaluation outputs are available in the GitHub repository:
+The evaluation scripts and API response files are available in the GitHub repository:
 
-**https://github.com/faith-amanze/fortyguard-product-evaluation**
+https://github.com/faith-amanze/fortyguard-product-evaluation
 
-The repository includes:
-- API test scripts
-- Status-checking scripts
-- Exceedance and Persistence inspection scripts
-- Time-of-Measure comparison scripts
-- JSON API responses
-- Heatmap visualization
+The repository contains Python scripts, JSON response samples, and a heatmap visualisation used during API evaluation.
 
-**Evaluation limitation:** This report assesses observed product behaviour and available functionality. It does not independently validate scientific temperature accuracy, production scalability, or untested MCP functionality.
+MCP validation trace IDs:
+
+- Polygon: `669750498e1f`
+- Feature: `cb60295762bf`
+- FeatureCollection: `87ad224ec880`
+
+**Testing limitations:** This evaluation was not an independent scientific validation of temperature accuracy. Dashboard alert delivery, PDF generation, and formal scalability testing were not completed. MCP AI-client integration was not verified because interactive client authentication was unavailable.
