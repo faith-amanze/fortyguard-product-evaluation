@@ -8,3 +8,7 @@ venv/
 secrets/
 credentials.json
 *.log
+.env
+__pycache__/
+*.pyc
+.venv/

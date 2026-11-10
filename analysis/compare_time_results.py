@@ -1,8 +1,13 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = ROOT / "results" / "data"
+FIG_DIR = ROOT / "results" / "figures"
 import json
 
 files = [
-    "time_of_measure_result.json",
-    "time_of_measure_result_2.json"
+    DATA_DIR / "time_of_measure_result.json",
+    DATA_DIR / "time_of_measure_result_2.json"
 ]
 
 for filename in files:

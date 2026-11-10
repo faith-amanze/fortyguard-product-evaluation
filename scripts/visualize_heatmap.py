@@ -1,9 +1,14 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = ROOT / "results" / "data"
+FIG_DIR = ROOT / "results" / "figures"
 import json
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
 # Load the saved API response
-with open("heatmap_result.json", "r", encoding="utf-8") as file:
+with open(DATA_DIR / "heatmap_result.json", "r", encoding="utf-8") as file:
     result = json.load(file)
 
 # Extract GeoJSON map data
@@ -45,7 +50,7 @@ ax.set_ylabel("Latitude")
 plt.tight_layout()
 
 # Save the map
-plt.savefig("fortyguard_heatmap.png", dpi=300)
+plt.savefig(FIG_DIR / "fortyguard_heatmap.png", dpi=300)
 
 print("\nHeatmap saved as fortyguard_heatmap.png")
 
